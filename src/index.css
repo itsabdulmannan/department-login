@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --Nunito-family: "Nunito", sans-serif;
+  --Poppins-family: "Poppins", sans-serif;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("/public/fonts/Nunito/Nunito-VariableFont_wght.ttf") format("truetype");
+  font-weight: 400; /* Regular */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("/public/fonts/Nunito/static/Nunito-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/public/fonts/Poppins/Poppins-Regular.ttf") format("truetype");
+  font-weight: 400; 
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("/public/fonts/Poppins/Poppins-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+body {
+  font-family: var(--Poppins-family);
+}
+
+.container-global {
+  width: 100% !important;
+  margin: 0px auto;
+  padding: 20px 30px;
+}
+@media screen and (max-width: 768px) {
+  .container-global{
+  padding: 15px;
+
+  }
+}
+
