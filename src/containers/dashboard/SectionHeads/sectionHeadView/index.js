@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { MdOutlineDelete } from "react-icons/md";
 import { FaRegEye } from "react-icons/fa";
-import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import useHooks from "../useHook";
 
 const SectionHeadDetail = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const sectionHeadId = state?.sectionHeadId; 
-  console.log(sectionHeadId,"iddddddddd")
+  const sectionHeadId = state?.sectionHeadId;
 
 
   const { viewSectionHead, sectionHeadDetails, loading, error } = useHooks();
 
   useEffect(() => {
     if (sectionHeadId) {
-      viewSectionHead(sectionHeadId); 
+      viewSectionHead(sectionHeadId);
     }
   }, []);
+
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  const { sectionHead, assignedPapers } = sectionHeadDetails?.[0] || {}; 
-  console.log(sectionHead)
 
   return (
     <div>
@@ -32,63 +35,61 @@ const SectionHeadDetail = () => {
           Cheif Editor Detail
         </h1>
       </div>
-      {sectionHead && (
+      {sectionHeadDetails && (
         <div className="bg-white rounded-md p-6 flex justify-between items-center gap-4 flex-wrap">
-          {/* <div>
-            <img
-              className="w-[152px] h-[152px] rounded-full "
-              src="https://picsum.photos/seed/picsum/200/300"
-            />
-          </div> */}
-
           <div className="flex flex-col justify-between gap-8">
-            <div className="flex flex-col ">
+            <div className="flex flex-col">
               <span className="text-primaryText text-lg font-semibold whitespace-nowrap">
                 Name
               </span>
               <span className="text-base whitespace-nowrap">
-                {`${sectionHead.firstName} ${sectionHead.lastName}`}
+                {`${sectionHeadDetails.sectionHead?.firstName ?? "N/A"} ${
+                  sectionHeadDetails.sectionHead?.lastName ?? ""
+                }`}
               </span>
             </div>
-            <div className="flex flex-col ">
+            <div className="flex flex-col">
               <span className="text-primaryText text-lg font-semibold whitespace-nowrap">
                 Phone number
               </span>
-              <span className="text-base">{sectionHead.phone}</span>
+              <span className="text-base">
+                {sectionHeadDetails.sectionHead?.phone ?? "N/A"}
+              </span>
             </div>
           </div>
           <div className="flex flex-col justify-between gap-8">
-            <div className="flex flex-col ">
+            <div className="flex flex-col">
               <span className="text-primaryText text-lg font-semibold whitespace-nowrap">
                 Email
               </span>
               <span className="text-base whitespace-nowrap">
-                {sectionHead.email}
+                {sectionHeadDetails.sectionHead?.email ?? "N/A"}
               </span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-primaryText text-lg font-semibold whitespace-nowrap">
                 Specialization
               </span>
-              <span className="text-base">{sectionHead.specialization}</span>
+              <span className="text-base">
+                {sectionHeadDetails.sectionHead?.specialization ?? "N/A"}
+              </span>
             </div>
           </div>
           <div className="flex flex-col justify-between gap-8">
-            <div className="flex flex-col ">
+            <div className="flex flex-col">
               <span className="text-primaryText text-lg font-semibold whitespace-nowrap">
                 Affiliation
               </span>
               <span className="whitespace-nowrap">
-                {sectionHead.affiliation}
+                {sectionHeadDetails.sectionHead?.affiliation ?? "N/A"}
               </span>
             </div>
-            <div className="flex flex-col ">
+            <div className="flex flex-col">
               <span className="text-primaryText text-lg font-semibold whitespace-nowrap">
                 Total Assigned Paper
               </span>
               <span className="text-base whitespace-nowrap">
-                {" "}
-                {sectionHead.totalAssignedPapers}
+                {sectionHeadDetails.sectionHead?.totalAssignedPapers ?? 0}
               </span>
             </div>
           </div>
@@ -105,10 +106,7 @@ const SectionHeadDetail = () => {
                 Sr No
               </th>
               <th className="py-4 px-4 text-start  font-semibold text-primaryText">
-                Paper Name
-              </th>
-              <th className="py-4 px-4 text-start  font-semibold text-primaryText">
-                Title
+                Manuscript Title
               </th>
               <th className="py-4 px-4 text-start  font-semibold text-primaryText">
                 Manuscript Type
@@ -120,34 +118,31 @@ const SectionHeadDetail = () => {
               <th className="py-4 px-4 text-start   font-semibold text-primaryText">
                 Status
               </th>
-              <th className="py-4 px-4 text-start  font-semibold text-primaryText">
+              {/* <th className="py-4 px-4 text-start  font-semibold text-primaryText">
                 Action
-              </th>
+              </th> */}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {assignedPapers?.length > 0 ? (
-              assignedPapers.map((paper, index) => (
+            {sectionHeadDetails?.assignedPapers?.length > 0 ? (
+              sectionHeadDetails.assignedPapers?.map((paper, index) => (
                 <tr key={paper.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 whitespace-nowrap text-darkText">
                     {index + 1}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-darkText">
-                    {paper.name}
+                    {paper.manuScriptTitle}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-darkText">
-                    {paper.title}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-darkText">
-                    {paper.manuscriptType}
+                    {paper.manuScriptType}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-darkText">
                     {paper.subject}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-darkText">
-                    {paper.status}
+                    {paper.paperStatus}
                   </td>
-                  <td className="px-4 py-4">
+                  {/* <td className="px-4 py-4">
                     <div className="flex justify-start">
                       <button
                         onClick={() => {
@@ -158,7 +153,7 @@ const SectionHeadDetail = () => {
                         <MdOutlineDelete size={20} className="w-4" />
                       </button>
                     </div>
-                  </td>
+                  </td> */}
                 </tr>
               ))
             ) : (

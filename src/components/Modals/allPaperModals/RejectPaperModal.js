@@ -2,11 +2,24 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import useOutsideClick from "../../outSideClickHook/index"; // Custom hook to detect clicks outside the modal
 import useHooks from "../useHook"; // Custom hook for fetching and updating data
+import { toast } from "react-toastify";
 
-const RejectPaperModal = ({ isRejectModalOpen, toggleRejectModal, paperId }) => {
+const RejectPaperModal = ({
+  isRejectModalOpen,
+  toggleRejectModal,
+  paperId,
+  fetchPapers,
+  pageSize, // Receive pageSize as a prop
+  currentPage,
+}) => {
   const [remarks, setRemarks] = useState([]);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   const { rejectPaper, loading, allData, error } = useHooks();
 
@@ -17,19 +30,24 @@ const RejectPaperModal = ({ isRejectModalOpen, toggleRejectModal, paperId }) => 
   const onSubmit = async (data) => {
     const comment = data.remark.trim();
     const newRemark = data.remark.trim();
-  
+
     try {
       setRemarks([...remarks, newRemark]);
-  
-      await rejectPaper(paperId,"rejected",  comment,  new Date().toISOString(),  );
-  
+
+      await rejectPaper(paperId, "rejected", comment, new Date().toISOString());
+      toast.success("Paper rejected successfully.");
+      fetchPapers("submitted", {
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
       reset();
       toggleRejectModal();
     } catch (err) {
-      console.error("Error while rejecting paper:", err); 
+      toast.error("Failed to reject the paper. Please try again.");
+      console.error("Error while rejecting paper:", err);
     }
   };
-  
+
   if (!isRejectModalOpen) return null;
 
   return (
@@ -37,7 +55,7 @@ const RejectPaperModal = ({ isRejectModalOpen, toggleRejectModal, paperId }) => 
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div
           ref={modalRef}
-          className="bg-white w-96 rounded-lg shadow-lg p-6 relative"
+          className="bg-white w-[90%] sm:w-96 rounded-lg shadow-lg p-6 relative"
         >
           <button
             onClick={toggleRejectModal}
@@ -55,7 +73,10 @@ const RejectPaperModal = ({ isRejectModalOpen, toggleRejectModal, paperId }) => 
               placeholder="Add your remarks for rejection..."
               {...register("remark", {
                 required: "Remarks are required",
-                maxLength: { value: 500, message: "Remarks cannot exceed 500 characters" },
+                maxLength: {
+                  value: 500,
+                  message: "Remarks cannot exceed 500 characters",
+                },
               })}
               className={`border p-2 rounded mb-2 resize-none h-24 ${
                 errors.remark ? "border-secondary " : "border-primary "

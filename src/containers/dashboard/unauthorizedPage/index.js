@@ -21,7 +21,7 @@ const UnauthorizedPage = () => {
           style={{
             backgroundColor: "#353372",
           }}
-          onClick={() => (window.location.href = "/assigned-paper")}
+          onClick={() => (window.location.href = "/section-head-assigned-paper")}
         >
           Go to Homepage
         </button>

@@ -1,4 +1,6 @@
+import { view } from "framer-motion";
 import { deleteRequest, getRequest, postRequest, putRequest } from "../methods";
+
 
 export const AuthAPI = {
   // Auth api
@@ -23,4 +25,19 @@ export const PapersApi = {
   getRejectedPaper : async (params) => await getRequest("papers/fetch-papers/status", params),
   updateAssignedPaperStatus : async (params) => await getRequest("papers/fetch-papers/status", params),
   getReviewedPaper : async (params) => await getRequest("papers/fetch-papers/status", params),
+  getAcceptdPaperById : async (params) => await getRequest("papers/fetch-papers/status", params),
+
+
+  getSectionHeadAssignedPaper: async (params) => await getRequest("papers/assigned-papers", params),
+  updateSectionHeadStatus: async (id,body) => await putRequest(`/papers/sectionHead/updateStatus/${id}`,body),
+
+  ViewSectionHeadAssigndPaoer: async(params)=> await getRequest('/papers/fetch-papers/status',params)
+
+
 }
+
+export const ProfileSetting = {
+  getUserProfileById: async () => await getRequest("users/get"),
+  updateUserProfile: async (data) => await putRequest(`users/update`, data),
+
+};

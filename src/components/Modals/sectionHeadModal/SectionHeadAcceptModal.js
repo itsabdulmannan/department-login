@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import useOutsideClick from "../../outSideClickHook/index"; // Custom hook to detect clicks outside the modal
-import useHooks from "../useHook"; // Custom hook for fetching and updating data
+import useOutsideClick from "../../outSideClickHook/index"; 
+import useHooks from "../../../containers/dashboard/sectionHeadAssignedPaper/useHook"; 
+import { toast } from "react-toastify";
 
-const AcceptAndReportModal = ({ isAcceptReportModalOpen, toggleAcceptReportModal, paperId }) => {
+const SectionHeadAcceptModal = ({ isAcceptReportModalOpen, toggleAcceptReportModal, paperId, onUpdate }) => {
   const [remarks, setRemarks] = useState([]);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
-  const { rejectPaper, loading, allData, error } = useHooks();
+  const { updatesectionHeadStatus, loading, allData, error } = useHooks();
 
   const modalRef = useOutsideClick(() => {
     if (isAcceptReportModalOpen) toggleAcceptReportModal();
@@ -21,8 +22,12 @@ const AcceptAndReportModal = ({ isAcceptReportModalOpen, toggleAcceptReportModal
     try {
       setRemarks([...remarks, newRemark]);
   
-      await rejectPaper(paperId,"rejected",  comment,  new Date().toISOString(),  );
-  
+      await updatesectionHeadStatus(paperId,"accepted",  comment,  new Date().toISOString(),  );
+      toast.success("Paper accepted successfully.");
+
+    if (onUpdate) {
+      onUpdate();
+    }
       reset();
       toggleAcceptReportModal();
     } catch (err) {
@@ -37,7 +42,7 @@ const AcceptAndReportModal = ({ isAcceptReportModalOpen, toggleAcceptReportModal
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div
           ref={modalRef}
-          className="bg-white w-96 rounded-lg shadow-lg p-6 relative"
+          className="bg-white w-[90%] sm:w-96 rounded-lg shadow-lg p-6 relative"
         >
           <button
             onClick={toggleAcceptReportModal}
@@ -79,4 +84,4 @@ const AcceptAndReportModal = ({ isAcceptReportModalOpen, toggleAcceptReportModal
   );
 };
 
-export default AcceptAndReportModal;
+export default SectionHeadAcceptModal;

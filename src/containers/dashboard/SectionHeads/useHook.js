@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SectionHeadsAPI } from "../../../libs/http-service/api/auth.api";
 import { configureHeaders } from "../../../libs/http-service/interceptors/http.interceptors";
-import { toast } from "react-toastify"; 
-configureHeaders(); 
+import { toast } from "react-toastify";
+configureHeaders();
 
 const useHooks = () => {
   const navigate = useNavigate();
@@ -11,17 +11,16 @@ const useHooks = () => {
   const [allData, setAllData] = useState(null);
   const [error, setError] = useState(null);
   const [sectionHeadDetails, setSectionHeadDetails] = useState(null);
+  const [pagination, setPagination] = useState(null);
 
-
-  // Fetch Section Heads
-  const fetchSectionHeads = async (body) => {
+  const fetchSectionHeads = async (body = { limit: 10, offset: 0 }) => {
     setLoading(true);
     setError(null);
     try {
-      console.log("Fetching Section Heads with body:", body);
+
       const response = await SectionHeadsAPI.getAllSectionHeads(body);
       setAllData(response.data);
-      console.log("API Response Data:", response.data);
+      setPagination(response.pagination);
     } catch (err) {
       setError(err.message || "Something went wrong");
       console.error("API Error:", err);
@@ -30,22 +29,18 @@ const useHooks = () => {
     }
   };
 
-  // Create Section Head
   const createSectionHead = async (body) => {
     setLoading(true);
     setError(null);
     try {
       const response = await SectionHeadsAPI.createSectionHead(body);
       if (response && response.data && response.data.status === true) {
-        toast.success("Chief Editor added successfully!");
-        await fetchSectionHeads();
+        
       } else {
-        toast.error("Failed to add Chief Editor");
+        setError("Failed to add Section Head");
       }
     } catch (err) {
       setError(err.message || "Failed to create Section Head");
-      console.error("API Error:", err);
-      toast.error(err.message || "Something went wrong!");
     } finally {
       setLoading(false);
     }
@@ -55,24 +50,17 @@ const useHooks = () => {
     setLoading(true);
     setError(null);
     try {
-      const params = { sectionHeadId }; // Construct the query parameter
-      console.log("Sending params:", params); // Check if the params are correct
-      const response = await SectionHeadsAPI.viewSectionHead(params); // Pass the params to the API
-      setSectionHeadDetails(response.data);
-      console.log("Section Head Details:", response.data);
+      const params = { sectionHeadId };
+
+      const response = await SectionHeadsAPI.viewSectionHead(params);
+      setSectionHeadDetails(response);
     } catch (err) {
       setError(err.message || "Failed to fetch Section Head details");
       console.error("API Error:", err);
-      toast.error(err.message || "Something went wrong!");
     } finally {
       setLoading(false);
     }
   };
-  
-  
-  
-  
-  
 
   return {
     fetchSectionHeads,
@@ -81,6 +69,7 @@ const useHooks = () => {
     loading,
     allData,
     sectionHeadDetails,
+    pagination,
     error,
   };
 };

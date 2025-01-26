@@ -15,12 +15,19 @@ const useHooks = () => {
       const response = await AuthAPI.login(body);
       if (response?.data?.token) {
         const { token } = response.data;
+        const  id  = response.data.user.id;
+        const title = response.data.user.title;
+        const firstName = response.data.user.firstName;
         const decodedToken = jwtDecode(token);
         const userRole = decodedToken.role;
 
         // Save token and role to localStorage
         localStorage.setItem("Token", token);
         localStorage.setItem("Role", userRole);
+        localStorage.setItem("id", id);
+        localStorage.setItem("firstName", firstName);
+
+
 
         toast.success("Login successful!");
 
@@ -28,7 +35,7 @@ const useHooks = () => {
           if (userRole === "cheifEditor") {
             navigate("/"); 
           } else if (userRole === "sectionHead") {
-            navigate("/assigned-paper"); 
+            navigate("/section-head-assigned-paper"); 
           } else {
             navigate("/unauthorized");
           }

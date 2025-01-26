@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PapersApi } from "../../../libs/http-service/api/auth.api";
+import { PapersApi } from "../../../libs/http-service/api/auth.api"; // Make sure this is the correct import
 import { configureHeaders } from "../../../libs/http-service/interceptors/http.interceptors";
 import { toast } from "react-toastify";
 
@@ -13,31 +13,28 @@ const useHooks = () => {
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState(null);
 
-  const fetchPapers = async (status, { limit, offset }) => {
+
+  // Fetch Papers with dynamic query params
+  const SectionHeadAssignedPapers = async (status,sectionHeadId ) => {
     setLoading(true);
     setError(null);
 
-    const params = {
-      param: status, 
-      limit,         
-      offset,      
-    };
+    const params = { status: status, sectionHeadId };
 
     try {
-      const response = await PapersApi.getAllPapers(params);
-      setAllData(response.papers);
-      setPagination(response.pagination);
 
+      const response = await PapersApi.getSectionHeadAssignedPaper(params);
+      const assignedPapers = response.assignedPapers; 
+      setAllData(assignedPapers); 
+      setPagination(response.pagination);
     } catch (err) {
       setError(err.message || "Something went wrong");
-      console.error("API Error:", err);
-      toast.error("Failed to fetch papers. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const updateStatus = async (paperId, status, comment, date, sectionHeadIds) => {
+  const updatesectionHeadStatus = async (paperId, status, comment, date, sectionHeadIds) => {
     setLoading(true);
     setError(null);
     const body = {
@@ -47,8 +44,9 @@ const useHooks = () => {
       sectionHeadIds,
     };
   
-  try {
-      const response = await PapersApi.updateStatus(paperId, body);
+    try {
+
+      const response = await PapersApi.updateSectionHeadStatus(paperId, body);
   
       if (response.status === true) {
         console.log("Paper status updated successfully");
@@ -65,8 +63,8 @@ const useHooks = () => {
   
 
   return {
-    fetchPapers,
-    updateStatus,  
+    SectionHeadAssignedPapers,
+    updatesectionHeadStatus,  
     pagination,
     loading,
     allData,

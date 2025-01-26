@@ -4,93 +4,44 @@ import { MdOutlineFileDownload } from "react-icons/md";
 import { BsEye } from "react-icons/bs";
 import AbstractModal from "components/Modals/AbstractModal";
 import useHooks from "./useHook";
-import AbstractAssignPaperModal from "components/Modals/assignedPaperModals/AbstractAssignPaperModal";
-import RejectAssignPaperModal from "components/Modals/assignedPaperModals/RejectAssignPaperModal";
-import AcceptAndReportModal from "components/Modals/assignedPaperModals/AcceptAndReportModal";
 
-const papers = [
-  {
-    id: 1,
-    title:
-      "Variation on the soil thermal properties of different applications in greenhouse solarization",
-    authors:
-      "Sertan Sesveren, Yusuf Tulun, Kemal Dogan, Mert Acar and Alkhan Sariyev",
-    doi: "10.21162/PAKJAS/25.104",
-    date: "2025-01-09",
-  },
-  {
-    id: 2,
-    title: "Another research paper title here for demonstration",
-    authors: "Author 1, Author 2, Author 3",
-    doi: "10.21162/EXAMPLE/25.105",
-    date: "2025-02-15",
-  },
-  {
-    id: 1,
-    title:
-      "Variation on the soil thermal properties of different applications in greenhouse solarization",
-    authors:
-      "Sertan Sesveren, Yusuf Tulun, Kemal Dogan, Mert Acar and Alkhan Sariyev",
-    doi: "10.21162/PAKJAS/25.104",
-    date: "2025-01-09",
-  },
-  {
-    id: 2,
-    title: "Another research paper title here for demonstration",
-    authors: "Author 1, Author 2, Author 3",
-    doi: "10.21162/EXAMPLE/25.105",
-    date: "2025-02-15",
-  },
-  {
-    id: 1,
-    title:
-      "Variation on the soil thermal properties of different applications in greenhouse solarization",
-    authors:
-      "Sertan Sesveren, Yusuf Tulun, Kemal Dogan, Mert Acar and Alkhan Sariyev",
-    doi: "10.21162/PAKJAS/25.104",
-    date: "2025-01-09",
-  },
-  {
-    id: 2,
-    title: "Another research paper title here for demonstration",
-    authors: "Author 1, Author 2, Author 3",
-    doi: "10.21162/EXAMPLE/25.105",
-    date: "2025-02-15",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import Pagination from "components/pagination";
 
 const AssignedPaper = () => {
-  const { fetchAssignedPapers, loading, allData, error } = useHooks();
+  const { fetchAssignedPapers, pagination, loading, allData, error } = useHooks();
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const navigate= useNavigate()
 
-  const [isRejectAssignModalOpen, setRejectIsAssignModalOpen] = useState(false);
-  const [isAcceptReportModalOpen, setIsAcceptReportModalOpen] = useState(false);
   const [selectedAbstract, setSelectedAbstract] = useState("");
   const [selectedManuscriptTitle, setSelectedManuscriptTitle] = useState("");
   const [selectedPaperId, setSelectedPaperId] = useState(null);
 
-  useEffect(() => {
-    fetchAssignedPapers("assigned");
-  }, []);
-  console.log(allData, "datta");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(10);
 
-  const toggleAcceptReportModal = (id) => {
-    setSelectedPaperId(id);
-    setIsAcceptReportModalOpen((prev) => !prev);
-  };
 
-  const toggleRejectModal = (id) => {
-    setSelectedPaperId(id);
-    setRejectIsAssignModalOpen((prev) => !prev);
-  };
+    useEffect(() => {
+      fetchAssignedPapers("assigned", {
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
+    }, [currentPage, pageSize]);
+  
+    const handlePageChange = (newPage) => {
+      if (newPage >= 1 && newPage <= pagination?.totalPages) {
+        setCurrentPage(newPage);
+      }
+    };
+
 
   const openModal = (event, abstract, manuscriptTitle) => {
     const { clientX, clientY } = event;
     setPosition({ x: clientX, y: clientY });
     setSelectedAbstract(abstract);
     setSelectedManuscriptTitle(manuscriptTitle);
-    setIsOpen(true); // Opens the modal
+    setIsOpen(true); 
   };
 
   const closeModal = () => {
@@ -98,13 +49,11 @@ const AssignedPaper = () => {
     setSelectedAbstract("");
   };
 
-  console.log("Parent: Passing paperId", selectedPaperId);
-
   return (
     <div>
       <div className="flex items-center gap-6 mb-4">
         <h1 className="text-lg sm:text-2xl text-primaryText font-semibold whitespace-nowrap">
-          Assigned Paper
+          Assigned Papers
         </h1>
       </div>
 
@@ -135,11 +84,11 @@ const AssignedPaper = () => {
                 <p className="font-sans italic text-[13px] font-bold text-gray-700">
                   {/* {paper.doi} - {paper.date} */}
                 </p>
-                <div className="flex justify-between items-center gap-4 mt-4">
-                  <div className="flex gap-2">
+                <div className="flex flex-wrap justify-between items-center gap-4 mt-4">
+                  <div className="flex flex-wrap gap-2">
                     <a
-                      href={paper.mainManuscript} // Use the file URL to download
-                      download // This will trigger the download
+                      href={paper.mainManuscript} 
+                      download 
                       className="flex items-center whitespace-nowrap px-4 py-2 bg-secondary text-white text-sm rounded-lg shadow-md hover:bg-primary focus:outline-none"
                     >
                       <MdOutlineFileDownload className="mr-2" />
@@ -157,16 +106,11 @@ const AssignedPaper = () => {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={(e) => toggleAcceptReportModal(paper.id)}
+                      onClick={() => navigate('/view-assigned-detail-section-head', { state: { paperId: paper.id } })}
+
                       className="flex items-center px-4 py-2 bg-green-500 text-white text-sm rounded-lg shadow-md hover:bg-green-700"
                     >
-                      Accept & Report
-                    </button>
-                    <button
-                      onClick={(e) => toggleRejectModal(paper.id)}
-                      className="flex items-center px-4 py-2 text-white bg-red-600 text-sm rounded-lg shadow-md hover:bg-red-900"
-                    >
-                      Reject
+                      View Assigned Section Head
                     </button>
                   </div>
                 </div>
@@ -177,26 +121,25 @@ const AssignedPaper = () => {
           )}
         </div>
       </div>
+      {pagination && pagination.totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={pagination.totalPages}
+          total={pagination.total}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+        />
+      )}
 
       {isOpen && (
         <AbstractModal
           isOpen={isOpen}
           onClose={closeModal}
-          abstract={selectedAbstract} 
-          manuscriptTitle={selectedManuscriptTitle} 
-
+          abstract={selectedAbstract}
+          manuscriptTitle={selectedManuscriptTitle}
         />
       )}
-      <RejectAssignPaperModal
-        isRejectAssignModalOpen={isRejectAssignModalOpen}
-        toggleRejectModal={toggleRejectModal}
-        paperId={selectedPaperId}
-      />
-      <AcceptAndReportModal
-        isAcceptReportModalOpen={isAcceptReportModalOpen}
-        toggleAcceptReportModal={toggleAcceptReportModal}
-        paperId={selectedPaperId}
-      />
+
     </div>
   );
 };

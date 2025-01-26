@@ -4,11 +4,7 @@ import axios from "../../http-service/config/axios.config";
 
 export const postRequest = async (url, data, params = {}) => {
     try {
-        console.log(url)
-        console.log(data)
-        console.log(params)
         const response = await axios.post(url, data, params );
-        console.log("RESPONSE:", response)
         return response.data;
     } catch (error) {
         return errorHandler(error);
@@ -43,7 +39,6 @@ export const patchRequest = async (url , data , params = {}) => {
 export const deleteRequest  = async (url , params  = {}) => {
     try {
         const response = await axios.delete(url, { params });
-        console.log(response)
         return response?.data;
     } catch (error) {
         // return errorHandler(error);

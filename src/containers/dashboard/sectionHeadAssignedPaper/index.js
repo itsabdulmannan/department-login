@@ -2,34 +2,36 @@ import React, { useEffect, useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { BsEye } from "react-icons/bs";
-import AbstractModal from "components/Modals/AbstractModal";
-import AcceptAndPublishModal from "components/Modals/allPaperModals/AcceptAndPublishModal";
-import AcceptAndAssignModal from "components/Modals/allPaperModals/AcceptAndAssignModal";
-import RejectPaperModal from "components/Modals/allPaperModals/RejectPaperModal";
 import useHooks from "./useHook";
+import SectionHeadRejectModal from "components/Modals/sectionHeadModal/SectionHeadRejectModal";
+import SectionHeadAbstractModal from "components/Modals/sectionHeadModal/SectionHeadAbstractModal";
+import SectionHeadAcceptModal from "components/Modals/sectionHeadModal/SectionHeadAcceptModal";
 import Pagination from "components/pagination";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import { toast } from "react-toastify";
-const AllPapers = () => {
-  const { fetchPapers, pagination, loading, allData, error } = useHooks();
-  const [isOpen, setIsOpen] = useState(false); // Modal state
-  const [position, setPosition] = useState({ x: 0, y: 0 }); // Position state
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
-  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+
+const SectionHeadAssignedPaper = () => {
+  const { SectionHeadAssignedPapers, loading, allData, error, pagination } =
+    useHooks();
+  const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const [isRejectAssignModalOpen, setRejectIsAssignModalOpen] = useState(false);
+  const [isAcceptReportModalOpen, setIsAcceptReportModalOpen] = useState(false);
   const [selectedAbstract, setSelectedAbstract] = useState("");
   const [selectedManuscriptTitle, setSelectedManuscriptTitle] = useState("");
   const [selectedPaperId, setSelectedPaperId] = useState(null);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
 
   useEffect(() => {
-    fetchPapers("submitted", {
-      limit: pageSize,
-      offset: (currentPage - 1) * pageSize,
-    });
+    const sectionHeadId = localStorage.getItem("id");
+    if (sectionHeadId) {
+      SectionHeadAssignedPapers("assigned", sectionHeadId, {
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
+    }
   }, [currentPage, pageSize]);
 
   const handlePageChange = (newPage) => {
@@ -38,19 +40,24 @@ const AllPapers = () => {
     }
   };
 
-  const toggleModal = (id) => {
-    setSelectedPaperId(id);
-    setIsModalOpen((prev) => !prev);
+  const handleDataUpdate = () => {
+    const sectionHeadId = localStorage.getItem("id");
+    if (sectionHeadId) {
+      SectionHeadAssignedPapers("assigned", sectionHeadId, {
+        limit: pageSize,
+        offset: (currentPage - 1) * pageSize,
+      });
+    }
   };
 
-  const toggleAssignModal = (id) => {
+  const toggleAcceptReportModal = (id) => {
     setSelectedPaperId(id);
-    setIsAssignModalOpen((prev) => !prev);
+    setIsAcceptReportModalOpen((prev) => !prev);
   };
 
   const toggleRejectModal = (id) => {
     setSelectedPaperId(id);
-    setIsRejectModalOpen((prev) => !prev);
+    setRejectIsAssignModalOpen((prev) => !prev);
   };
 
   const openModal = (event, abstract, manuscriptTitle) => {
@@ -66,11 +73,12 @@ const AllPapers = () => {
     setSelectedAbstract("");
   };
 
+
   return (
     <div>
       <div className="flex items-center gap-6 mb-4">
         <h1 className="text-lg sm:text-2xl text-primaryText font-semibold whitespace-nowrap">
-          All Papers
+          Assigned Paper
         </h1>
       </div>
 
@@ -90,7 +98,7 @@ const AllPapers = () => {
                   <div className="flex flex-wrap gap-2">
                     {paper.authors.map((author, index) => (
                       <span
-                        key={index} 
+                        key={index}
                         className="font-sans text-[13px] font-bold leading-relaxed tracking-wider my-1 text-primaryText"
                       >
                         {author.fullName}
@@ -98,46 +106,36 @@ const AllPapers = () => {
                     ))}
                   </div>
                 </div>
-                {/* <p className="font-sans italic text-[13px] font-bold text-gray-700">
-                  {paper.doi} - {paper.date}
-                </p> */}
-                <div className="flex justify-between flex-wrap items-center gap-4 mt-4">
-                  <div className="flex flex-wrap gap-2">
+                <div className="flex justify-between items-center gap-4 mt-4">
+                  <div className="flex gap-2">
                     <a
-                      href={paper.mainManuscript} 
-                      download 
+                      href={paper.mainManuscript}
+                      download
                       className="flex items-center whitespace-nowrap px-4 py-2 bg-secondary text-white text-sm rounded-lg shadow-md hover:bg-primary focus:outline-none"
                     >
                       <MdOutlineFileDownload className="mr-2" />
                       Download PDF
                     </a>
-
                     <button
                       onClick={(e) =>
                         openModal(e, paper.manuScriptTitle, paper.abstract)
-                      } // Pass manuscript title, abstract, and manuscript
-                      className="flex items-center whitespace-nowrap px-4 py-2 bg-gray-200 text-gray-800 text-sm rounded-lg shadow-md hover:bg-gray-300"
+                      }
+                      className="flex items-center px-4 py-2 bg-gray-200 text-gray-800 text-sm rounded-lg shadow-md hover:bg-gray-300"
                     >
                       <BsEye className="mr-2" />
                       View Abstract
                     </button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex gap-2">
                     <button
-                      onClick={(e) => toggleModal(paper.id)}
-                      className="flex items-center whitespace-nowrap px-4 py-2 bg-primary text-white text-sm rounded-lg shadow-md hover:bg-[#4c4b7e] focus:outline-none"
+                      onClick={(e) => toggleAcceptReportModal(paper.id)}
+                      className="flex items-center px-4 py-2 bg-green-500 text-white text-sm rounded-lg shadow-md hover:bg-green-700"
                     >
-                      Accept & Publish
-                    </button>
-                    <button
-                      onClick={(e) => toggleAssignModal(paper.id)}
-                      className="flex items-center whitespace-nowrap px-4 py-2 bg-green-500 text-white text-sm rounded-lg shadow-md hover:bg-green-700"
-                    >
-                      Accept & Assign
+                      Accept & Report
                     </button>
                     <button
                       onClick={(e) => toggleRejectModal(paper.id)}
-                      className="flex items-center whitespace-nowrap px-4 py-2 text-white bg-red-600 text-sm rounded-lg shadow-md hover:bg-red-900"
+                      className="flex items-center px-4 py-2 text-white bg-red-600 text-sm rounded-lg shadow-md hover:bg-red-900"
                     >
                       Reject
                     </button>
@@ -161,47 +159,29 @@ const AllPapers = () => {
       )}
 
       {isOpen && (
-        <AbstractModal
+        <SectionHeadAbstractModal
           isOpen={isOpen}
           onClose={closeModal}
           abstract={selectedAbstract}
           manuscriptTitle={selectedManuscriptTitle}
         />
       )}
-      {isModalOpen && (
-        <AcceptAndPublishModal
-          isOpen={isModalOpen}
-          toggleModal={toggleModal}
-          paperId={selectedPaperId}
-          fetchPapers={fetchPapers}
-          pageSize={pageSize} // Pass pageSize
-          currentPage={currentPage} // Pass currentPage
-        />
-      )}
-      {isAssignModalOpen && (
-        <AcceptAndAssignModal
-          isAssignModalOpen={isAssignModalOpen}
-          toggleAssignModal={toggleAssignModal}
-          paperId={selectedPaperId}
-          fetchPapers={fetchPapers}
-          pageSize={pageSize} // Pass pageSize
-          currentPage={currentPage} // Pass currentPage
-        />
-      )}
+      <SectionHeadRejectModal
+        isRejectAssignModalOpen={isRejectAssignModalOpen}
+        toggleRejectModal={toggleRejectModal}
+        paperId={selectedPaperId}
+        onUpdate={handleDataUpdate}
 
-      {isRejectModalOpen && (
-        <RejectPaperModal
-          isRejectModalOpen={isRejectModalOpen}
-          toggleRejectModal={toggleRejectModal}
-          paperId={selectedPaperId}
-          fetchPapers={fetchPapers}
-          pageSize={pageSize} // Pass pageSize
-          currentPage={currentPage} // Pass currentPage
-        />
-      )}
+      />
+      <SectionHeadAcceptModal
+        isAcceptReportModalOpen={isAcceptReportModalOpen}
+        toggleAcceptReportModal={toggleAcceptReportModal}
+        paperId={selectedPaperId}
+        onUpdate={handleDataUpdate}
+      />
       <ToastContainer />
     </div>
   );
 };
 
-export default AllPapers;
+export default SectionHeadAssignedPaper;

@@ -1,31 +1,47 @@
 import React, { useState, useEffect } from "react";
-import { MdOutlineDelete } from "react-icons/md";
 import { FaRegEye } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import AddCheifEditorsModal from "components/Modals/AddCheifEditorsModal";
 import useHooks from "./useHook";
+import AddCheifEditorsModal from "components/Modals/AddCheifEditorsModal";
+import Pagination from "components/pagination";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const SectionHeads = () => {
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
 
-  const { fetchSectionHeads, loading, allData, error } = useHooks(); 
+  const { fetchSectionHeads, loading, allData, error, pagination } = useHooks();
 
   useEffect(() => {
-    fetchSectionHeads(); 
-  }, []);
+    fetchSectionHeads({
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
+    });
+  }, [currentPage, pageSize]);
+
+  
 
   if (loading) return <div>Loading...</div>;
 
   const openModal = (event) => {
-    const { clientX, clientY } = event; 
-    setPosition({ x: clientX, y: clientY }); 
-    setIsOpen(true); 
+    const { clientX, clientY } = event;
+    setPosition({ x: clientX, y: clientY });
+    setIsOpen(true);
   };
 
   const closeModal = () => {
-    setIsOpen(false); 
+    setIsOpen(false);
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination?.totalPages) {
+      setCurrentPage(newPage);
+    }
   };
 
   return (
@@ -48,23 +64,22 @@ const SectionHeads = () => {
               <th className="py-4 px-4 whitespace-nowrap text-start font-semibold text-primaryText">
                 Sr No
               </th>
-              <th className="py-4 px-4 text-start font-semibold text-primaryText">
+              <th className="py-4 px-4 whitespace-nowrap text-start font-semibold text-primaryText">
                 Title
               </th>
-              <th className="py-4 px-4 text-start font-semibold text-primaryText">
+              <th className="py-4 px-4 whitespace-nowrap text-start font-semibold text-primaryText">
                 Name
               </th>
-              <th className="py-4 px-4 text-start font-semibold text-primaryText">
+              <th className="py-4 px-4 whitespace-nowrap text-start font-semibold text-primaryText">
                 Email
               </th>
-            
-              <th className="py-4 px-4 text-start font-semibold text-primaryText">
+              <th className="py-4 px-4 whitespace-nowrap text-start font-semibold text-primaryText">
                 Specialization
               </th>
-              <th className="py-4 px-4 text-start font-semibold text-primaryText">
+              <th className="py-4 px-4 whitespace-nowrap text-start font-semibold text-primaryText">
                 Affiliation
               </th>
-              <th className="py-4 px-4 text-start font-semibold text-primaryText">
+              <th className="py-4 px-4 whitespace-nowrap text-start font-semibold text-primaryText">
                 Action
               </th>
             </tr>
@@ -74,7 +89,7 @@ const SectionHeads = () => {
               allData.map((item, index) => (
                 <tr key={item.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 whitespace-nowrap text-darkText">
-                    {index + 1}
+                    {(currentPage - 1) * pageSize + index + 1}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-darkText">
                     {item.title}
@@ -94,7 +109,11 @@ const SectionHeads = () => {
                   <td className="px-4 py-4">
                     <div className="flex justify-start">
                       <button
-                           onClick={() => navigate('/section-head-view', { state: { sectionHeadId: item.id } })}
+                        onClick={() =>
+                          navigate("/section-head-view", {
+                            state: { sectionHeadId: item.id },
+                          })
+                        }
                         className="px-2 py-1 bg-green-600 rounded-sm text-white"
                       >
                         <FaRegEye size={20} className="w-4" />
@@ -116,11 +135,22 @@ const SectionHeads = () => {
           </tbody>
         </table>
       </div>
+      {pagination && pagination.totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={pagination.totalPages}
+          total={pagination.total}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+        />
+      )}
       <AddCheifEditorsModal
         isOpen={isOpen}
         position={position}
         onClose={closeModal}
+        fetchSectionHeads={fetchSectionHeads}
       />
+      <ToastContainer/>
     </>
   );
 };

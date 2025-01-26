@@ -10,20 +10,44 @@ const useHooks = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [allData, setAllData] = useState(null);
+  const [dataByID, setDataByID] = useState(null);
+  const [pagination, setPagination] = useState(null);
+
   const [error, setError] = useState(null);
 
-  // Fetch Papers with dynamic query params
-  const fetchAcceptedPapers = async (status) => {
+ 
+  const fetchAcceptedPapers = async (status, { limit, offset }) => {
     setLoading(true);
     setError(null);
 
-    const params = { param: status };
+    const params = {
+      param: status, 
+      limit,         
+      offset,      
+    };
 
     try {
-      console.log("Fetching Papers with status:", status);
       const response = await PapersApi.getAcceptedPaper(params);
       setAllData(response.papers);
-      console.log("API Response Data:", response.papers);
+      setPagination(response.pagination);
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+      console.error("API Error:", err);
+      toast.error("Failed to fetch papers. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAcceptedPapersById = async (paperId) => {
+    setLoading(true);
+    setError(null);
+
+    const params = { paperId: paperId };
+
+    try {
+      const response = await PapersApi.getAcceptdPaperById(params);
+      setDataByID(response.papers);
     } catch (err) {
       setError(err.message || "Something went wrong");
       console.error("API Error:", err);
@@ -38,8 +62,11 @@ const useHooks = () => {
 
   return {
     fetchAcceptedPapers, 
+    fetchAcceptedPapersById,
+    pagination,
     loading,
     allData,
+    dataByID,
     error,
   };
 };

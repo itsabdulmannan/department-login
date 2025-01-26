@@ -3,15 +3,29 @@ import { MdOutlineDelete } from "react-icons/md";
 import { FaRegEye } from "react-icons/fa";
 import { Navigate, useNavigate } from "react-router-dom";
 import useHooks from "./useHook";
+import Pagination from "components/pagination";
 
 const RejectedPaper = () => {
-  const { fetchRejectedPapers, loading, allData, error } = useHooks();
+  const [showFullText, setShowFullText] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const { fetchRejectedPapers, loading, allData, error, pagination } =
+    useHooks();
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchRejectedPapers("rejected");
-  }, []);
+    fetchRejectedPapers("rejected", {
+      limit: pageSize,
+      offset: (currentPage - 1) * pageSize,
+    });
+  }, [currentPage, pageSize]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination?.totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   return (
     <>
@@ -23,34 +37,34 @@ const RejectedPaper = () => {
       <div className="bg-white rounded-lg border-[0.3px] border-gray-200 overflow-x-auto">
         <table className="w-full divide-y  divide-gray-200">
           <thead>
-            <tr className="">
-              <th className="py-4 px-4 text-start  font-semibold text-primaryText">
+            <tr className="whitespace-nowrap">
+              <th className="py-4 px-4 whitespace-nowrap text-start  font-semibold text-primaryText">
                 Sr No
               </th>
-              <th className="py-4 px-4 text-start  font-semibold text-primaryText">
+              <th className="py-4 px-4 whitespace-nowrap text-start  font-semibold text-primaryText">
                 Manuscript Type
               </th>
-              <th className="py-4 px-4 text-start  font-semibold text-primaryText">
+              <th className="py-4 px-4 whitespace-nowrap text-start  font-semibold text-primaryText">
                 Manuscript Title
               </th>
-              <th className="py-4 px-4 text-start  font-semibold text-primaryText">
+              <th className="py-4 px-4 whitespace-nowrap text-start  font-semibold text-primaryText">
                 Subject
               </th>
-              <th className="py-4 px-4 text-start   font-semibold text-primaryText">
+              <th className="py-4 px-4 whitespace-nowrap text-start   font-semibold text-primaryText">
                 Status
               </th>
 
-              <th className="py-4 px-4 text-start font-semibold text-primaryText">
+              <th className="py-4 px-4 whitespace-nowrap text-start font-semibold text-primaryText">
                 Action
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-          {allData && allData.length > 0 ? (
+            {allData && allData.length > 0 ? (
               allData.map((item, index) => (
                 <tr key={item.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 whitespace-nowrap  text-darkText">
-                    {index + 1}
+                  {(currentPage - 1) * pageSize + index + 1}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap  text-darkText">
                     {item.manuScriptType}
@@ -68,9 +82,11 @@ const RejectedPaper = () => {
                   <td className="px-4 py-4">
                     <div className="flex justify-start]">
                       <button
-                        onClick={() => {
-                          navigate("/cheif-editor-view");
-                        }}
+                        onClick={() =>
+                          navigate("/rejected-paper-detail", {
+                            state: { paperId: item.id },
+                          })
+                        }
                         className="px-2 py-1 bg-green-600 rounded-sm text-white"
                       >
                         <FaRegEye size={20} className="w-4" />
@@ -92,6 +108,15 @@ const RejectedPaper = () => {
           </tbody>
         </table>
       </div>
+      {pagination && pagination.totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={pagination.totalPages}
+          total={pagination.total}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+        />
+      )}
     </>
   );
 };

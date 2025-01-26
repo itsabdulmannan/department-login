@@ -1,21 +1,56 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import useHooks from "./useHook";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 const ProfileSetting = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const navigate = useNavigate();
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+  const { getUserProfile, updateUserProfile, loading, error, data } = useHooks();
+  const [userName, setUserName] = useState({ firstName: "", lastName: "", title:"" });
+
   const [showPassword, setShowPassword] = useState(false);
 
-  const togglePasswordVisibility = () => {
-    setShowPassword((prevState) => !prevState);
-  };
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  
+  useEffect(() => {
+    getUserProfile();
+  }, []);
 
-  const onSubmit = (data) => {
-    console.log(data); // Process the form data
+  useEffect(() => {
+    if (data) {
+      setValue("firstName", data.firstName);
+      setValue("lastName", data.lastName);
+      setValue("email", data.email);
+      setValue("title", data.title);
+      setValue("country", data.country);
+      setValue("specialization", data.specialization);
+      setValue("affiliation", data.affiliation);
+      setValue("phone", data.phone);
+
+      setUserName({title:data.title, firstName: data.firstName, lastName: data.lastName });
+    }
+  }, [data, setValue]);
+
+  const goToHome = () => {
+    const role = localStorage.getItem("Role");
+  
+    if (role === "sectionHead") {
+      navigate("/section-head-assigned-paper"); 
+    } else if (role === "cheifEditor") {
+      navigate("/");
+    } else {
+      navigate("/"); 
+    }
+  };
+  
+
+  const onSubmit = (formData) => {
+    updateUserProfile(formData);
+    goToHome(); 
   };
 
   return (
@@ -228,7 +263,7 @@ const ProfileSetting = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
-                {...register("password", { required: "Password is required" })}
+                {...register("password")}
                 placeholder="Your Password"
                 className="block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none"
               />
@@ -258,6 +293,7 @@ const ProfileSetting = () => {
           </div>
         </form>
       </div>
+      <ToastContainer/>
     </>
   );
 };

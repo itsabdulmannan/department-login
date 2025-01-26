@@ -14,28 +14,29 @@ const useHooks = () => {
   const [dataByID, setDataByID] = useState(null);
   const [pagination, setPagination] = useState(null);
 
-  const fetchRejectedPapers = async (status, { limit, offset }) => {
+
+
+  const fetchSectionHeadReviewedPaper = async (status,sectionHeadId ) => {
     setLoading(true);
     setError(null);
 
-    const params = {
-      param: status, 
-      limit,         
-      offset,        
-    };
+    const params = { status: status, sectionHeadId };
 
     try {
-      const response = await PapersApi.getRejectedPaper(params);
-      setAllData(response.papers);
+      const response = await PapersApi.getSectionHeadAssignedPaper(params);
       setPagination(response.pagination);
+      const assignedPapers = response.assignedPapers; 
+      setAllData(assignedPapers); 
+      setPagination(response.pagination);
+
     } catch (err) {
       setError(err.message || "Something went wrong");
+      console.error("API Error:", err);
     } finally {
       setLoading(false);
     }
   };
-
-  const fetchRejectedPapersById = async (paperId) => {
+  const fetchPapersById = async (paperId) => {
     setLoading(true);
     setError(null);
 
@@ -52,9 +53,9 @@ const useHooks = () => {
     }
   };
   return {
-    fetchRejectedPapers,
+    fetchSectionHeadReviewedPaper,
+    fetchPapersById,
     loading,
-    fetchRejectedPapersById,
     pagination,
     allData,
     dataByID,

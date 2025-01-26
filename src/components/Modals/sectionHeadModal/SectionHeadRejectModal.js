@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import useOutsideClick from "../../outSideClickHook/index"; // Custom hook to detect clicks outside the modal
-import useHooks from "../useHook"; // Custom hook for fetching and updating data
+import useHooks from "../../../containers/dashboard/sectionHeadAssignedPaper/useHook"; 
+import { toast } from "react-toastify";
 
-const RejectAssignPaperModal = ({ isRejectAssignModalOpen, toggleRejectModal, paperId }) => {
+const SectionHeadRejectModal = ({ isRejectAssignModalOpen, toggleRejectModal, paperId, onUpdate}) => {
   const [remarks, setRemarks] = useState([]);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
-  const { rejectPaper, loading, allData, error } = useHooks();
+  const { updatesectionHeadStatus, loading, allData, error } = useHooks();
+
 
   const modalRef = useOutsideClick(() => {
     if (isRejectAssignModalOpen) toggleRejectModal();
@@ -21,8 +23,12 @@ const RejectAssignPaperModal = ({ isRejectAssignModalOpen, toggleRejectModal, pa
     try {
       setRemarks([...remarks, newRemark]);
   
-      await rejectPaper(paperId,"rejected",  comment,  new Date().toISOString(),  );
+      await updatesectionHeadStatus(paperId,"rejected",  comment,  new Date().toISOString(),  );
+        toast.success("Paper rejected successfully.");
   
+      if (onUpdate) {
+        onUpdate();
+      }
       reset();
       toggleRejectModal();
     } catch (err) {
@@ -37,7 +43,7 @@ const RejectAssignPaperModal = ({ isRejectAssignModalOpen, toggleRejectModal, pa
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div
           ref={modalRef}
-          className="bg-white w-96 rounded-lg shadow-lg p-6 relative"
+          className="bg-white w-[90%] sm:w-96 rounded-lg shadow-lg p-6 relative"
         >
           <button
             onClick={toggleRejectModal}
@@ -79,4 +85,4 @@ const RejectAssignPaperModal = ({ isRejectAssignModalOpen, toggleRejectModal, pa
   );
 };
 
-export default RejectAssignPaperModal;
+export default SectionHeadRejectModal;

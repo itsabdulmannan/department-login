@@ -5,24 +5,28 @@ import { Navigate, useNavigate } from "react-router-dom";
 import useHooks from "./useHook";
 import Pagination from "components/pagination";
 
-const ReviewedPaper = () => {
-  const { fetchReviewedPaper, pagination, loading, allData, error } = useHooks();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(10);
+const SectionReviewedPaper = () => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(10);
+  const { fetchSectionHeadReviewedPaper, loading, allData, error,pagination } = useHooks();
+
   const navigate = useNavigate();
 
-    useEffect(() => {
-      fetchReviewedPaper("", {
+  useEffect(() => {
+    const sectionHeadId = localStorage.getItem("id");
+    if (sectionHeadId) {
+      fetchSectionHeadReviewedPaper("", sectionHeadId,{
         limit: pageSize,
         offset: (currentPage - 1) * pageSize,
       });
-    }, [currentPage, pageSize]);
-  
-    const handlePageChange = (newPage) => {
-      if (newPage >= 1 && newPage <= pagination?.totalPages) {
-        setCurrentPage(newPage);
-      }
-    };
+    }
+  }, [currentPage, pageSize]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination?.totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
   return (
     <>
       <div className="flex items-center gap-6 mb-4">
@@ -33,7 +37,7 @@ const ReviewedPaper = () => {
       <div className="bg-white rounded-lg border-[0.3px] border-gray-200 overflow-x-auto">
         <table className="w-full divide-y  divide-gray-200">
           <thead>
-            <tr className="">
+            <tr className="whitespace-nowrap">
               <th className="py-4 px-4 whitespace-nowrap text-start  font-semibold text-primaryText">
                 Sr No
               </th>
@@ -81,7 +85,7 @@ const ReviewedPaper = () => {
 
                       <button
                         onClick={() =>
-                          navigate("/review-paper-detail", {
+                          navigate("/section-head-paper-detail", {
                             state: { paperId: item.id },
                           })
                         }
@@ -119,4 +123,4 @@ const ReviewedPaper = () => {
   );
 };
 
-export default ReviewedPaper;
+export default SectionReviewedPaper;
