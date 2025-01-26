@@ -18,16 +18,15 @@ const useHooks = () => {
     setError(null);
 
     const params = {
-      param: status, 
-      limit,         
-      offset,      
+      param: status,
+      limit,
+      offset,
     };
 
     try {
       const response = await PapersApi.getAllPapers(params);
       setAllData(response.papers);
       setPagination(response.pagination);
-
     } catch (err) {
       setError(err.message || "Something went wrong");
       console.error("API Error:", err);
@@ -37,7 +36,13 @@ const useHooks = () => {
     }
   };
 
-  const updateStatus = async (paperId, status, comment, date, sectionHeadIds) => {
+  const updateStatus = async (
+    paperId,
+    status,
+    comment,
+    date,
+    sectionHeadIds
+  ) => {
     setLoading(true);
     setError(null);
     const body = {
@@ -46,10 +51,10 @@ const useHooks = () => {
       date,
       sectionHeadIds,
     };
-  
-  try {
+
+    try {
       const response = await PapersApi.updateStatus(paperId, body);
-  
+
       if (response.status === true) {
         console.log("Paper status updated successfully");
       } else {
@@ -62,11 +67,10 @@ const useHooks = () => {
       setLoading(false);
     }
   };
-  
 
   return {
     fetchPapers,
-    updateStatus,  
+    updateStatus,
     pagination,
     loading,
     allData,
